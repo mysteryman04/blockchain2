@@ -1,371 +1,21 @@
 const { Web3 } = require('web3');
+const fs = require('fs');
 
 
 const infuraApiKey = 'e039feb59ad3401da352dd13a6984526';
-const web3 = new Web3(`https://mainnet.infura.io/v3/${infuraApiKey}`);
+const web3 = new Web3(`https://sepolia.infura.io/v3/${infuraApiKey}`, { timeout: 60000 });
 
 
-const contractAddress = '0x07Ef3BbA9315cB3f30eD14eB6dF41d98a9089Df6';
+const contractAddress = '0x3b8e304F7c5C303C115aC786C9957f8A93559B17';
 
-const abi = [
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "spender",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "allowance",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "needed",
-                    "type": "uint256"
-                }
-            ],
-            "name": "ERC20InsufficientAllowance",
-            "type": "error"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "sender",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "balance",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "needed",
-                    "type": "uint256"
-                }
-            ],
-            "name": "ERC20InsufficientBalance",
-            "type": "error"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "approver",
-                    "type": "address"
-                }
-            ],
-            "name": "ERC20InvalidApprover",
-            "type": "error"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "receiver",
-                    "type": "address"
-                }
-            ],
-            "name": "ERC20InvalidReceiver",
-            "type": "error"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "sender",
-                    "type": "address"
-                }
-            ],
-            "name": "ERC20InvalidSender",
-            "type": "error"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "spender",
-                    "type": "address"
-                }
-            ],
-            "name": "ERC20InvalidSpender",
-            "type": "error"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "owner",
-                    "type": "address"
-                },
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "spender",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "value",
-                    "type": "uint256"
-                }
-            ],
-            "name": "Approval",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "from",
-                    "type": "address"
-                },
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "to",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "value",
-                    "type": "uint256"
-                }
-            ],
-            "name": "Transfer",
-            "type": "event"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "spender",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "value",
-                    "type": "uint256"
-                }
-            ],
-            "name": "approve",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "to",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "value",
-                    "type": "uint256"
-                }
-            ],
-            "name": "transfer",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "from",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "to",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "value",
-                    "type": "uint256"
-                }
-            ],
-            "name": "transferFrom",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "stateMutability": "payable",
-            "type": "constructor"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "owner",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "spender",
-                    "type": "address"
-                }
-            ],
-            "name": "allowance",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "account",
-                    "type": "address"
-                }
-            ],
-            "name": "balanceOf",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "decimals",
-            "outputs": [
-                {
-                    "internalType": "uint8",
-                    "name": "",
-                    "type": "uint8"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "lastTransactionReceiver",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "lastTransactionSender",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "latestTransactionTimestamp",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "name",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "symbol",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "totalSupply",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        }
-];
+const abiFilePath = 'ABI.json';
+const abiRawData = fs.readFileSync(abiFilePath);
+const abi = JSON.parse(abiRawData);
 
 const contract = new web3.eth.Contract(abi, contractAddress);
 
-// Replace with the address holding tokens
 const userAddress = '0x427D8ACFe3820420DEBB19c0D64eb098b8B42Fb4';
+
 
 // Example 1: Check balance of the user
 contract.methods.balanceOf(userAddress).call()
@@ -376,41 +26,74 @@ contract.methods.balanceOf(userAddress).call()
         console.error('Error checking balance:', error);
     });
 
-// // Example 2: Transfer tokens
-// const fromAddress = 'SENDER_WALLET_ADDRESS';
-// const privateKey = 'YOUR_PRIVATE_KEY';
-//
-// const gasLimit = 200000; // Adjust as needed
-// const gasPrice = web3.utils.toWei('50', 'gwei'); // Adjust as needed
-//
-// const transferAmount = 100; // Replace with the amount of tokens to transfer
-//
-// const transferData = contract.methods.transfer(userAddress, transferAmount).encodeABI();
-//
-// const transactionObject = {
-//     from: fromAddress,
-//     to: contractAddress,
-//     gas: gasLimit,
-//     gasPrice: gasPrice,
-//     data: transferData,
-// };
-//
-// web3.eth.accounts.signTransaction(transactionObject, privateKey)
-//     .then(signedTransaction => {
-//         web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
-//             .on('transactionHash', hash => {
-//                 console.log('Transaction Hash:', hash);
-//             })
-//             .on('confirmation', (confirmationNumber, receipt) => {
-//                 console.log('Confirmation:', confirmationNumber, receipt);
-//             })
-//             .on('receipt', receipt => {
-//                 console.log('Receipt:', receipt);
-//             })
-//             .on('error', error => {
-//                 console.error('Error:', error);
-//             });
-//     })
-//     .catch(error => {
-//         console.error('Error signing transaction:', error);
-//     });
+// Example 2: Transfer tokens
+const fromAddress = '0x427D8ACFe3820420DEBB19c0D64eb098b8B42Fb4';
+const privateKey = '25edda2e981c34010a24fb3087fae9f9aeaafe5417587e15af9ab5410d5658dd';
+
+const gasLimit = 500000;
+
+const gasPrice = web3.utils.toWei('100', 'gwei');
+
+const transferAmount = 100;
+
+const transferData = contract.methods.transfer(userAddress, transferAmount).encodeABI();
+
+const transactionObject = {
+    from: fromAddress,
+    to: contractAddress,
+    gas: gasLimit,
+    gasPrice: gasPrice,
+    data: transferData,
+};
+
+web3.eth.accounts.signTransaction(transactionObject, privateKey)
+    .then(signedTransaction => {
+        web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+            .on('transactionHash', hash => {
+                console.log('Transaction Hash:', hash);
+            })
+            .on('confirmation', (confirmationNumber, receipt) => {
+                console.log('Confirmation:', confirmationNumber, receipt);
+            })
+            .on('receipt', receipt => {
+                console.log('Receipt:', receipt);
+            })
+            .on('error', error => {
+                console.error('Error:', error);
+            });
+    })
+    .catch(error => {
+        console.error('Error signing transaction:', error);
+    });
+
+async function fetchWithRetry(url, options, retries = 3) {
+    let tries = 0;
+    while (tries < retries) {
+        try {
+            return await fetch(url, options);
+        } catch (error) {
+            tries++;
+            console.error(`Error on attempt ${tries}: ${error.message}`);
+        }
+    }
+    throw new Error(`Failed after ${retries} attempts.`);
+}
+
+
+// Example 3: Fetch data using fetchWithRetry
+async function fetchData() {
+    try {
+        const response = await fetchWithRetry('https://sepolia.infura.io/v3/e039feb59ad3401da352dd13a6984526', {});
+
+        if (response.ok) {
+            const data = await response.json();
+            // ... handle the data as needed ...
+        } else {
+            console.error(`Error: ${response.statusText}`);
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error.message);
+    }
+}
+fetchData();
+
