@@ -1,5 +1,5 @@
 # Deployment of smart contract with crud functions to public testnet and accessing via node.js and web3 library
-***
+
 # Usage Examples
   
 1. Check Balance
@@ -93,5 +93,6 @@ This command mints (creates) 100 tokens and assigns them to the specified recipi
 https://github.com/OpenZepp
 elin/openzeppelin-
 contracts/blob/master/LICENSE
+<br>
 https://spdx.org/licenses/MIT.html
 
